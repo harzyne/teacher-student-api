@@ -2,9 +2,13 @@ const pool = require('../config/db');
 
 exports.registerStudents = async (req, res) => {
   const { teacher, students } = req.body;
+  
+  if (!teacher) {
+    return res.status(400).json({ message: 'Teacher is required' });
+  }
 
-  if (!teacher || !Array.isArray(students) || students.length === 0) {
-    return res.status(400).json({ message: 'Invalid request body' });
+  if (!Array.isArray(students) || students.length === 0) {
+    return res.status(400).json({ message: 'At least one student is required' });
   }
 
   const connection = await pool.getConnection();
