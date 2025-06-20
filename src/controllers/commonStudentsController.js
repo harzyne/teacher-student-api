@@ -12,6 +12,7 @@ exports.getCommonStudents = async (req, res) => {
   try {
     const connection = await pool.getConnection();
 
+    // Get teacher IDs based on email addresses
     const teacherIdsQuery = `
       SELECT id, email FROM teachers WHERE email IN (?)
     `;
@@ -21,7 +22,7 @@ exports.getCommonStudents = async (req, res) => {
       return res.status(400).json({ message: 'One or more teachers not found' });
     }
 
-    // Build dynamic SQL to find students registered under ALL teachers
+    // Construct the query to find common students
     const commonQuery = `
       SELECT s.email
       FROM students s
@@ -31,7 +32,15 @@ exports.getCommonStudents = async (req, res) => {
       HAVING COUNT(DISTINCT ts.teacher_id) = ?
     `;
 
-    const [commonStudents] = await connection.query(commonQuery, [...teacherRows.map(t => t.id), teacherRows.length]);
+    const [commonStudents] = await connection.query(commonQuery, [
+      ...teacherRows.map(t => t.id),
+      teacherRows.length,
+    ]);
+
+    // If no common students found, return an empty list
+    if (commonStudents.length === 0) {
+      return res.status(200).json({ students: [] });
+    }
 
     const emails = commonStudents.map(s => s.email);
 
