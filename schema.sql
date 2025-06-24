@@ -1,5 +1,6 @@
--- Create the database
-CREATE DATABASE IF NOT EXISTS school_admin;
+-- Drop existing and Create the database
+DROP DATABASE IF EXISTS school_admin;
+CREATE DATABASE school_admin;
 USE school_admin;
 
 -- Teachers table
